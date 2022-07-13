@@ -1,4 +1,5 @@
 pipeline {
+  
   agent {
     kubernetes {
       yamlFile 'build-agent.yaml'
@@ -6,7 +7,9 @@ pipeline {
       idleMinutes 1
     }
   }
+  
   stages {
+    
     stage('Build') {
       parallel {
         stage('Compile') {
@@ -18,8 +21,10 @@ pipeline {
         }
       }
     }
+    
     stage('Static Analysis') {
       parallel {
+        
         stage('Unit Tests') {
           steps {
             container('maven') {
@@ -27,6 +32,7 @@ pipeline {
             }
           }
         }
+        
         stage('SCA') {
           steps {
             container('maven') {
@@ -41,8 +47,18 @@ pipeline {
             }
           }
         }
+        
+        stage('OSS License Checker') {
+          steps {
+            container('licensefinder') {
+              sh 'ls -al'sh '''#!/bin/bash --login/bin/bash --loginrvm use defaultgem install license_finderlicense_finder'''
+            }
+          }
+        }
+        
       }
     }
+    
     stage('Package') {
       parallel {
         stage('Create Jarfile') {
@@ -52,6 +68,7 @@ pipeline {
             }
           }
         }
+        
         stage('OCI Image BnP') {
           steps {
             container('kaniko') {
@@ -59,13 +76,16 @@ pipeline {
             }
            }
          }
+        
       }
     }
+    
     stage('Deploy to Dev') {
       steps {
         // TODO
         sh "echo done"
       }
     }
+    
   }
 }

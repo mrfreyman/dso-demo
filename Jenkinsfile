@@ -51,7 +51,8 @@ pipeline {
         stage('OSS License Checker') {
           steps {
             container('licensefinder') {
-              sh 'ls -al'sh '''#!/bin/bash --login/bin/bash --loginrvm use defaultgem install license_finderlicense_finder'''
+              sh 'ls -al'
+              sh '''#!/bin/bash --login/bin/bash --loginrvm use defaultgem install license_finderlicense_finder'''
             }
           }
         }

@@ -46,21 +46,8 @@ pipeline {
               archiveArtifacts allowEmptyArchive: true,artifacts: 'target/dependency-check-report.html', fingerprint:true, onlyIfSuccessful: true// dependencyCheckPublisher pattern: 'report.xml'
             }
           }
-        }
-        
-        stage('SAST') {
-          steps {
-            container('slscan') {
-              sh 'scan --type java,depscan --build'
-            }
-          }
-          post {
-            success {
-              archiveArtifacts allowEmptyArchive: true,artifacts: 'reports/*', fingerprint: true, onlyIfSuccessful:true
-            }
-          }
-        }
-        
+        }  
+       
         stage('OSS License Checker') {
           steps {
             container('licensefinder') {
@@ -78,6 +65,21 @@ pipeline {
       }
     }
     
+    
+   stage('SAST') {
+          steps {
+            container('slscan') {
+              sh 'scan --type java,depscan --build'
+            }
+          }
+          post {
+            success {
+              archiveArtifacts allowEmptyArchive: true,artifacts: 'reports/*', fingerprint: true, onlyIfSuccessful:true
+            }
+          }
+      }
+   
+    
     stage('Package') {
       parallel {
         stage('Create Jarfile') {
@@ -87,16 +89,18 @@ pipeline {
             }
           }
         }
-        
         stage('OCI Image BnP') {
           steps {
             container('kaniko') {
               sh '/kaniko/executor -f `pwd`/Dockerfile -c `pwd` --insecure --skip-tls-verify --cache=true --destination=docker.io/mrfreyman/dso-demo'
             }
            }
-         }
-        
-        stage('Image Analysis') {
+         }      
+       }
+     }
+    
+    
+    stage('Image Analysis') {
           parallel {
             stage('Image Linting') {
               steps {
@@ -111,12 +115,10 @@ pipeline {
                   sh 'trivy image --exit-code 1 mrfreyman/dso-demo'
                 }
               }
-             }
             }
           }
-            
       }
-    }
+    
     
     stage('Deploy to Dev') {
       steps {

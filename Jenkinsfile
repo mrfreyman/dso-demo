@@ -116,7 +116,8 @@ pipeline {
             stage('Image Scan') {
               steps {
                 container('docker-tools') {
-                  sh 'trivy image --exit-code 1 mrfreyman/dso-demo'
+                  //original sh 'trivy image --exit-code 1 mrfreyman/dso-demo'
+                  sh 'trivy image --ignore-unfixed busybox:1.34.1-r3 --exit-code 1 mrfreyman/dso-demo'
                 }
               }
             }

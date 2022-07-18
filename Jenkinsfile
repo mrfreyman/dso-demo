@@ -2,7 +2,8 @@ pipeline {
   
   environment {
   //not working  ARGO_SERVER = '44.202.193.149:32100'
-    ARGO_SERVER = '172.31.13.142:32100'
+ //also not working   ARGO_SERVER = '172.31.13.142:32100'
+    ARGO_SERVER = 'localhost:32100'
   }
     
   agent {

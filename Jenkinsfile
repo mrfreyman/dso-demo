@@ -1,5 +1,9 @@
 pipeline {
   
+  environment {
+    ARGO_SERVER = '172.31.13.142:32100'
+  }
+    
   agent {
     kubernetes {
       yamlFile 'build-agent.yaml'
@@ -121,9 +125,14 @@ pipeline {
     
     
     stage('Deploy to Dev') {
+      environment {
+        AUTH_TOKEN = credentials('argocd-jenkins-deployer-token')
+      }
       steps {
-        // TODO
-        sh "echo done"
+        container('docker-tools') {
+          sh 'docker run -t schoolofdevops/argocd-cli argocd appsync dso-demo  --insecure --server $ARGO_SERVER --auth-token $AUTH_TOKEN'
+          sh 'docker run -t schoolofdevops/argocd-cli argocd appwait dso-demo --health --timeout 300   --insecure --server $ARGO_SERVER --auth-token $AUTH_TOKEN
+        }
       }
     }
     

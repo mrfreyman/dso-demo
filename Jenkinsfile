@@ -1,7 +1,7 @@
 pipeline {
   
   environment {
-    ARGO_SERVER = '172.31.13.142:32100'
+    ARGO_SERVER = '44.202.193.149:32100'
   }
     
   agent {
@@ -16,7 +16,7 @@ pipeline {
     
     stage('Build') {
       parallel {
-        stage('Compile') {
+        stage('MVN Compile') {
           steps {
             container('maven') {
               sh 'mvn compile'
@@ -29,7 +29,7 @@ pipeline {
     stage('Static Analysis') {
       parallel {
         
-        stage('Unit Tests') {
+        stage('MVN Unit Tests') {
           steps {
             container('maven') {
               sh 'mvn test'
@@ -37,7 +37,7 @@ pipeline {
           }
         }
         
-        stage('SCA') {
+        stage('OWASP Dep Check SCA') {
           steps {
             container('maven') {
               catchError(buildResult: 'SUCCESS', stageResult:'FAILURE') {
@@ -52,7 +52,7 @@ pipeline {
           }
         }  
        
-        stage('OSS License Checker') {
+        stage('License_Finder OSS') {
           steps {
             container('licensefinder') {
               sh 'ls -al'
@@ -70,7 +70,7 @@ pipeline {
     }
     
     
-   stage('SAST') {
+   stage('slSCAN SAST') {
           steps {
             container('slscan') {
               sh 'scan --type java,depscan --build'
@@ -86,14 +86,14 @@ pipeline {
     
     stage('Package') {
       parallel {
-        stage('Create Jarfile') {
+        stage('MVN Create Jarfile') {
           steps {
             container('maven') {
               sh 'mvn package -DskipTests'
             }
           }
         }
-        stage('OCI Image BnP') {
+        stage('Kaniko OCI Image BnP') {
           steps {
             container('kaniko') {
               sh '/kaniko/executor -f `pwd`/Dockerfile -c `pwd` --insecure --skip-tls-verify --cache=true --destination=docker.io/mrfreyman/dso-demo'
@@ -106,14 +106,14 @@ pipeline {
     
     stage('Image Analysis') {
           parallel {
-            stage('Image Linting') {
+            stage('Dockle Image Linting') {
               steps {
                 container('docker-tools') {
                   sh 'dockle docker.io/mrfreyman/dso-demo'
                 }
               }
             }
-            stage('Image Scan') {
+            stage('Trivy Image Scan') {
               steps {
                 container('docker-tools') {
                   sh 'trivy image --exit-code 1 mrfreyman/dso-demo'
@@ -124,7 +124,7 @@ pipeline {
       }
     
     
-    stage('Deploy to Dev') {
+    stage('Argocd Deploy to Dev') {
       environment {
         AUTH_TOKEN = credentials('argocd-jenkins-deployer-token')
       }

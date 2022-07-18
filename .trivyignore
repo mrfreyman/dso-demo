@@ -1,4 +1,8 @@
 # OpenSSL CVEs
 #
+#vulns in demo code not covered in content
 #just trying to see if it will publish, PoC
 CVE-2022-28391
+CVE-2022-0778
+CVE-2022-2097
+CVE-2018-25032

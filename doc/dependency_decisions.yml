@@ -1,5 +1,11 @@
 ---
 - - :permit
+  - busybox
+  - :who:
+    :why:
+    :versions: []
+    :when: 2020-09-29 15:26:41.128239000 Z
+- - :permit
   - New BSD
   - :who:
     :why:

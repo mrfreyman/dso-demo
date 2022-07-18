@@ -131,7 +131,7 @@ pipeline {
       steps {
         container('docker-tools') {
           sh 'docker run -t schoolofdevops/argocd-cli argocd appsync dso-demo  --insecure --server $ARGO_SERVER --auth-token $AUTH_TOKEN'
-          sh 'docker run -t schoolofdevops/argocd-cli argocd appwait dso-demo --health --timeout 300   --insecure --server $ARGO_SERVER --auth-token $AUTH_TOKEN
+          sh 'docker run -t schoolofdevops/argocd-cli argocd appwait dso-demo --health --timeout 300   --insecure --server $ARGO_SERVER --auth-token $AUTH_TOKEN'
         }
       }
     }
